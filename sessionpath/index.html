@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="description" content="An interactive SessionPath portfolio demo with illustrative market data.">
+  <meta name="referrer" content="no-referrer">
+  <title>SessionPath | Portfolio Demo</title>
+  <style>
+    :root { color-scheme: dark; font-family: "Segoe UI", sans-serif; color: #f6f2fc; background: #111223; }
+    * { box-sizing: border-box; }
+    body { margin: 0; min-height: 100vh; background: linear-gradient(180deg, #14112084, #111223 76%), url("./mountain.webp") center top / cover no-repeat; }
+    .shell { width: min(1060px, calc(100% - 48px)); margin: auto; }
+    header { min-height: 77px; display: flex; align-items: center; justify-content: space-between; gap: 16px; border-bottom: 1px solid #cfbeed40; }
+    .brand { font-size: 21px; font-weight: 710; letter-spacing: -.045em; }
+    .demo-label { font-size: 12px; border: 1px solid #d9c7ee70; border-radius: 99px; padding: 7px 12px; background: #251a36c9; }
+    main { padding: clamp(40px, 7vw, 90px) 0 52px; }
+    h1 { font-size: clamp(38px, 7vw, 72px); line-height: 1; font-weight: 655; letter-spacing: -.065em; margin: 0 0 15px; }
+    .intro { max-width: 570px; margin: 0 0 31px; color: #eee5f5; font-size: 16px; line-height: 1.55; }
+    .board { display: grid; gap: 14px; grid-template-columns: minmax(0, 1.45fr) minmax(0, 1fr); }
+    .panel { padding: clamp(18px, 3vw, 30px); border: 1px solid #c0a8df55; border-radius: 26px; background: #211c33ef; box-shadow: inset 0 1px 0 #fff2, 0 12px 35px #0d0b1b44; }
+    .panel h2 { font-size: 20px; line-height: 1.25; letter-spacing: -.029em; margin: 0 0 18px; }
+    fieldset { border: 0; padding: 0; margin: 0 0 21px; min-width: 0; }
+    legend { padding: 0; margin-bottom: 9px; font-size: 12px; color: #d0c2dd; }
+    .controls { display: flex; gap: 8px; flex-wrap: wrap; }
+    button { font: inherit; font-size: 13px; color: #ede7fa; background: #322743; border: 1px solid #8e7aa167; border-radius: 12px; min-height: 42px; padding: 8px 14px; cursor: pointer; }
+    button:hover { border-color: #d6b8ef; }
+    button[aria-pressed="true"] { background: #e7d0ff; border-color: #e7d0ff; color: #241a36; font-weight: 650; }
+    button:focus-visible { outline: 2px solid #f1bf99; outline-offset: 3px; }
+    .chart { display: grid; gap: 13px; }
+    .bar-row { display: grid; gap: 12px; align-items: center; grid-template-columns: 93px 1fr 42px; font-size: 13px; }
+    .bar-row span:last-child { text-align: right; font-variant-numeric: tabular-nums; }
+    .track { height: 8px; border-radius: 12px; background: #4b3a5a; overflow: hidden; }
+    .fill { display: block; height: 100%; border-radius: inherit; background: linear-gradient(90deg, #b5a1f5, #ebafe8); }
+    .bar-row:first-child .fill { background: linear-gradient(90deg, #ba99ec, #f8c498); }
+    .note { color: #d0c2dd; margin: 20px 0 0; font-size: 12px; line-height: 1.5; }
+    .sessions { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; }
+    .session { border: 1px solid #bca7df35; background: #31273f; padding: 13px; border-radius: 15px; min-height: 86px; }
+    .session h3 { color: #e3d7ec; font-size: 12px; font-weight: 550; margin: 0 0 8px; }
+    .session p { color: #fff0dd; font-size: 15px; line-height: 1.4; margin: 0; }
+    footer { display: flex; gap: 12px 24px; justify-content: space-between; flex-wrap: wrap; border-top: 1px solid #c0a8df35; padding: 17px 0 26px; color: #d0c2dd; font-size: 12px; }
+    footer a { color: #ebdcff; text-underline-offset: 3px; }
+    @media (max-width: 690px) { .board { grid-template-columns: 1fr; } .shell { width: calc(100% - 32px); } header { min-height: 62px; } }
+    @media (max-width: 370px) { .bar-row { grid-template-columns: 80px 1fr 34px; gap: 8px; } }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <header>
+      <span class="brand">SessionPath</span>
+      <span class="demo-label">Portfolio demo · Sample data</span>
+    </header>
+    <main>
+      <h1>Compare market sessions</h1>
+      <p class="intro">Choose a market and a sample scenario to explore how SessionPath presents session outcomes and their context.</p>
+      <div class="board">
+        <section class="panel" aria-labelledby="comparison">
+          <h2 id="comparison">Sample comparison</h2>
+          <fieldset>
+            <legend>Market</legend>
+            <div class="controls" id="markets">
+              <button type="button" data-key="cl" aria-pressed="true">Crude Oil</button>
+              <button type="button" data-key="nq" aria-pressed="false">Nasdaq-100</button>
+            </div>
+          </fieldset>
+          <fieldset>
+            <legend>Scenario</legend>
+            <div class="controls" id="scenarios">
+              <button type="button" data-key="quiet" aria-pressed="true">Quiet opening</button>
+              <button type="button" data-key="active" aria-pressed="false">Active opening</button>
+            </div>
+          </fieldset>
+          <div class="chart" id="chart" aria-live="polite">
+            <div class="bar-row"><span>Higher finish</span><span class="track" aria-hidden="true"><i class="fill"></i></span><span class="value"></span></div>
+            <div class="bar-row"><span>Lower finish</span><span class="track" aria-hidden="true"><i class="fill"></i></span><span class="value"></span></div>
+            <div class="bar-row"><span>Narrow range</span><span class="track" aria-hidden="true"><i class="fill"></i></span><span class="value"></span></div>
+          </div>
+          <p class="note">All outcomes use illustrative values created for this demo.</p>
+        </section>
+        <section class="panel" aria-labelledby="path">
+          <h2 id="path">Example session path</h2>
+          <div class="sessions" aria-live="polite">
+            <div class="session"><h3>Overnight</h3><p></p></div>
+            <div class="session"><h3>Asia</h3><p></p></div>
+            <div class="session"><h3>London</h3><p></p></div>
+            <div class="session"><h3>New York</h3><p></p></div>
+          </div>
+        </section>
+      </div>
+    </main>
+    <footer><span>Designed and built by Wanho</span><a href="https://lazywebhk.com/">Visit LazyWeb HK</a></footer>
+  </div>
+  <script>
+    // Mock display values and example labels authored exclusively for this demo.
+    const examples = {
+      cl: {
+        quiet: { values: [38, 27, 35], sessions: ["Narrow range", "Steady", "Higher finish", "Narrow range"] },
+        active: { values: [51, 33, 16], sessions: ["Active range", "Higher finish", "Lower finish", "Higher finish"] },
+      },
+      nq: {
+        quiet: { values: [29, 25, 46], sessions: ["Narrow range", "Lower finish", "Steady", "Narrow range"] },
+        active: { values: [33, 49, 18], sessions: ["Active range", "Higher finish", "Narrow range", "Lower finish"] },
+      },
+    };
+    let market = "cl";
+    let scenario = "quiet";
+    const rows = document.querySelectorAll(".bar-row");
+    const sessions = document.querySelectorAll(".session p");
+
+    function drawExample() {
+      const example = examples[market][scenario];
+      rows.forEach((row, index) => {
+        const value = example.values[index];
+        row.querySelector(".fill").style.width = `${value}%`;
+        row.querySelector(".value").textContent = `${value}%`;
+      });
+      sessions.forEach((element, index) => {
+        element.textContent = example.sessions[index];
+      });
+    }
+
+    function bindChoices(containerId, select) {
+      const buttons = document.querySelectorAll(`#${containerId} button`);
+      buttons.forEach(button => {
+        button.addEventListener("click", () => {
+          buttons.forEach(choice => choice.setAttribute("aria-pressed", String(choice === button)));
+          select(button.dataset.key);
+          drawExample();
+        });
+      });
+    }
+
+    bindChoices("markets", value => { market = value; });
+    bindChoices("scenarios", value => { scenario = value; });
+    drawExample();
+  </script>
+</body>
+</html>
